@@ -2,7 +2,6 @@
 
 A collection of some simple computer vision problems.
 
-Ideas:
 - [ ] Fashion MNIST (in progress)
 - [ ] Sudoku Solver
 - [ ] People Counter
