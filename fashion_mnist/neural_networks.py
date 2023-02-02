@@ -11,7 +11,7 @@ class FashionMLP():
     """A model made for the Fashion MNIST data set.
     """
 
-    def __init__(self, hidden_dims: tuple[int, int], lr: float = 1e-3) -> None:
+    def __init__(self, hidden_dims: tuple[int, int, int], lr: float = 1e-3) -> None:
         """Initialize model.
 
         Args:
@@ -137,7 +137,7 @@ class MultiLayerPerceptron(nn.Module):
     """A fully-connected feedforward neural network with two hidden layer.
     """
 
-    def __init__(self, hidden_dims: tuple[int, int]) -> None:
+    def __init__(self, hidden_dims: tuple[int, int, int]) -> None:
         """Initialize MLP.
 
         Args:
@@ -150,7 +150,9 @@ class MultiLayerPerceptron(nn.Module):
             nn.ReLU(),
             nn.Linear(hidden_dims[0], hidden_dims[1]),
             nn.ReLU(),
-            nn.Linear(hidden_dims[1], 10)
+            nn.Linear(hidden_dims[1], hidden_dims[2]),
+            nn.ReLU(),
+            nn.Linear(hidden_dims[2], 10)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
