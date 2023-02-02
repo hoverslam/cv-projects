@@ -3,7 +3,7 @@
 A collection of some simple computer vision problems.
 
 Ideas:
-- [ ] Fashion MNIST: In progress
+- [ ] Fashion MNIST (in progress)
 - [ ] Sudoku Solver
 - [ ] People Counter
 - [ ] Road Lane Detection
