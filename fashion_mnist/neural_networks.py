@@ -3,6 +3,10 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset, random_split
 
 
+# -----------------------------
+# Multi Layer Perceptron
+# -----------------------------
+
 class FashionMLP():
     """A model made for the Fashion MNIST data set.
     """
@@ -46,7 +50,8 @@ class FashionMLP():
             self.model.train()
             train_loss, correct = 0.0, 0.0
             for X, y in train_loader:
-                X, y = X.to(self.device), y.to(self.device)
+                X = X.to(self.device) / 255
+                y = y.to(self.device)
 
                 # Forward pass
                 logits = self.model(X)
@@ -94,7 +99,8 @@ class FashionMLP():
         loss, correct = 0.0, 0.0
         with torch.no_grad():
             for X, y in loader:
-                X, y = X.to(self.device), y.to(self.device)
+                X = X.to(self.device) / 255
+                y = y.to(self.device)
 
                 logits = self.model(X)
                 probs = nn.Softmax(dim=1)(logits)
@@ -118,7 +124,8 @@ class FashionMLP():
         """
         self.model.eval()
         with torch.no_grad():
-            X = X.to(self.device)
+            X = X.to(self.device) / 255
+            X /= 255
             logits = self.model(X)
             probs = nn.Softmax(dim=1)(logits)
             pred = torch.argmax(probs, dim=1)
@@ -156,3 +163,8 @@ class MultiLayerPerceptron(nn.Module):
             torch.Tensor: Logits
         """
         return self.layers(x)
+
+
+# -----------------------------
+# Convolutional Neural Network
+# -----------------------------
