@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from pytesseract import image_to_string
 from imutils.perspective import four_point_transform
+from skimage.segmentation import clear_border
 
 
 class SudokuImage:
@@ -86,23 +87,25 @@ class SudokuImage:
         Returns:
             np.ndarray: The digits as an 9x9 array. Zero means empty cell.
         """
-        # Split the grid in 9*9 cells
-        grid = self.get_grid()
+        # Preprocessing
+        grid = cv2.resize(self.get_grid(), (800, 800))
+        gray = cv2.cvtColor(grid, cv2.COLOR_BGR2GRAY)
+        thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+        borderless = clear_border(thresh)
+        erosion = cv2.erode(borderless, (5, 5), iterations=1)
+
+        # Divide grid in its 81 cells
         height, width = grid.shape[:2]
         h_linspace = np.linspace(0, height, 10, dtype=int)
         w_linspace = np.linspace(0, width, 10, dtype=int)
 
-        # Loop over all cells and extract the digit
+        # Loop over all cells and extract the digits
+        # TODO: Train a model on MNIST digits (Tesseract performs poorly)
         digits = np.zeros((9, 9), dtype=int)
         for i in range(9):
             for j in range(9):
-                img = grid[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
-                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                resized = cv2.resize(gray, (80, 80))
-                thresh = cv2.threshold(resized, 0, 255, cv2.THRESH_OTSU + cv2.THRESH_BINARY_INV)[1]
-
-                # ! Is Tesseract so bad or do I have to make the image preprocessing better?
-                ocr = image_to_string(thresh, config="--psm 7 outputbase digits").strip()
+                cell = erosion[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
+                ocr = image_to_string(cell, config="--psm 10 outputbase digits").strip()
                 if ocr.isnumeric():
                     digits[i, j] = int(ocr)
 
@@ -116,4 +119,4 @@ class SudokuSolver:
 
 if __name__ == "__main__":
     sudoku = SudokuImage("img/sudoku1.jpg")
-    print(sudoku.get_numbers())
+    print(sudoku.get_digits())
