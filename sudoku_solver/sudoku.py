@@ -92,20 +92,23 @@ class SudokuImage:
         gray = cv2.cvtColor(grid, cv2.COLOR_BGR2GRAY)
         thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
         borderless = clear_border(thresh)
-        erosion = cv2.erode(borderless, (5, 5), iterations=1)
 
         # Divide grid in its 81 cells
         height, width = grid.shape[:2]
         h_linspace = np.linspace(0, height, 10, dtype=int)
         w_linspace = np.linspace(0, width, 10, dtype=int)
 
+        cv2.imshow("Sudoku", borderless)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
         # Loop over all cells and extract the digits
         # TODO: Train a model on MNIST digits (maybe)
         digits = np.zeros((9, 9), dtype=int)
         for i in range(9):
             for j in range(9):
-                cell = erosion[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
-                ocr = image_to_string(cell, config="--oem 3 --psm 7").strip()
+                cell = borderless[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
+                ocr = image_to_string(cell, config="--oem 3 --psm 10").strip()
                 if ocr.isnumeric():
                     digits[i, j] = int(ocr)
 
