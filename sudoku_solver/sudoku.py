@@ -80,7 +80,7 @@ class SudokuImage:
 
         return grid
 
-    def get_numbers(self) -> np.ndarray:
+    def get_digits(self) -> np.ndarray:
         """Extract the digits from the puzzle grid.
 
         Returns:
