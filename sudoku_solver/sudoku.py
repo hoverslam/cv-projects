@@ -100,12 +100,12 @@ class SudokuImage:
         w_linspace = np.linspace(0, width, 10, dtype=int)
 
         # Loop over all cells and extract the digits
-        # TODO: Train a model on MNIST digits (Tesseract performs poorly)
+        # TODO: Train a model on MNIST digits (maybe)
         digits = np.zeros((9, 9), dtype=int)
         for i in range(9):
             for j in range(9):
                 cell = erosion[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
-                ocr = image_to_string(cell, config="--psm 10 outputbase digits").strip()
+                ocr = image_to_string(cell, config="--oem 3 --psm 7").strip()
                 if ocr.isnumeric():
                     digits[i, j] = int(ocr)
 
