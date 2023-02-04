@@ -1,5 +1,7 @@
 import numpy as np
 import cv2
+from pytesseract import image_to_string
+from imutils.perspective import four_point_transform
 
 
 class SudokuImage:
@@ -61,13 +63,50 @@ class SudokuImage:
 
         return border
 
-    def deskew(self) -> np.ndarray:
-        # TODO: Transform image to top-down view
-        raise NotImplementedError
+    def get_grid(self) -> np.ndarray:
+        """Create an top-down image of the grid only.
 
-    def to_numpy(self) -> np.ndarray:
-        # TODO: Extract numbers and represent the puzzle as a 9x9 numpy array
-        raise NotImplementedError
+        Returns:
+            np.ndarray: The puzzle grid.
+        """
+        # Find the four corners of the puzzle
+        border = self.get_border()
+        peri = cv2.arcLength(border, True)
+        corners = cv2.approxPolyDP(border, 0.04 * peri, True)
+        corners = np.squeeze(corners, axis=1)
+
+        # Deskew to get a top-down view of the grid
+        grid = four_point_transform(self.img, corners)
+
+        return grid
+
+    def get_numbers(self) -> np.ndarray:
+        """Extract the digits from the puzzle grid.
+
+        Returns:
+            np.ndarray: The digits as an 9x9 array. Zero means empty cell.
+        """
+        # Split the grid in 9*9 cells
+        grid = self.get_grid()
+        height, width = grid.shape[:2]
+        h_linspace = np.linspace(0, height, 10, dtype=int)
+        w_linspace = np.linspace(0, width, 10, dtype=int)
+
+        # Loop over all cells and extract the digit
+        digits = np.zeros((9, 9), dtype=int)
+        for i in range(9):
+            for j in range(9):
+                img = grid[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                resized = cv2.resize(gray, (80, 80))
+                thresh = cv2.threshold(resized, 0, 255, cv2.THRESH_OTSU + cv2.THRESH_BINARY_INV)[1]
+
+                # ! Is Tesseract so bad or do I have to make the image preprocessing better?
+                ocr = image_to_string(thresh, config="--psm 7 outputbase digits").strip()
+                if ocr.isnumeric():
+                    digits[i, j] = int(ocr)
+
+        return digits
 
 
 class SudokuSolver:
@@ -77,4 +116,4 @@ class SudokuSolver:
 
 if __name__ == "__main__":
     sudoku = SudokuImage("img/sudoku1.jpg")
-    sudoku.get_border(debug=True)
+    print(sudoku.get_numbers())
