@@ -14,17 +14,9 @@ class SudokuImage:
         """
         self.img = self.resize_height(cv2.imread(file), 500)
 
-    def show(self, solution: bool = True, border: bool = False) -> None:
-        if border:
-            cv2.drawContours(self.img, [self.get_border()], 0, (0, 255, 0), 1)
-
-        if solution:
-            # TODO: Display solution obtained by the solver.
-            pass
-
-        cv2.imshow("Sudoku", self.img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+    def show_solution(self) -> None:
+        # TODO: Display solution obtained by the solver.
+        raise NotImplementedError
 
     def resize_height(self, img: np.ndarray, height: int) -> np.ndarray:
         """Resize image to a given height but keep aspect ratio.
@@ -42,8 +34,11 @@ class SudokuImage:
 
         return cv2.resize(img, (width, height), interpolation=cv2.INTER_AREA)
 
-    def get_border(self) -> np.ndarray:
+    def get_border(self, debug: bool = False) -> np.ndarray:
         """Find the border of the Sudoku grid.
+
+        Args:
+            debug (bool, optional): Show image with grid border. Defaults to False.
 
         Returns:
             np.ndarray: The contour of the border.
@@ -58,9 +53,15 @@ class SudokuImage:
         contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         border = sorted(contours, key=cv2.contourArea, reverse=True)[1]
 
+        if debug:
+            cv2.drawContours(self.img, [border], 0, (0, 255, 0), 1)
+            cv2.imshow("Sudoku", self.img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
         return border
 
-    def deskew(self) -> None:
+    def deskew(self) -> np.ndarray:
         # TODO: Transform image to top-down view
         raise NotImplementedError
 
@@ -76,4 +77,4 @@ class SudokuSolver:
 
 if __name__ == "__main__":
     sudoku = SudokuImage("img/sudoku1.jpg")
-    sudoku.show(border=True)
+    sudoku.get_border(debug=True)
