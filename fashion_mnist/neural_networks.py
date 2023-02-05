@@ -55,9 +55,9 @@ class FashionMLP():
 
                 # Forward pass
                 logits = self.model(X)
-                probs = nn.Softmax(dim=1)(logits)
-                loss = self.criterion(probs, y)
+                loss = self.criterion(logits, y)
                 train_loss += loss
+                probs = nn.Softmax(dim=1)(logits)
                 correct += (torch.argmax(probs, dim=1) == y).sum()
 
                 # Backpropagation
@@ -103,9 +103,8 @@ class FashionMLP():
                 y = y.to(self.device)
 
                 logits = self.model(X)
+                loss += self.criterion(logits, y)
                 probs = nn.Softmax(dim=1)(logits)
-
-                loss += self.criterion(probs, y)
                 correct += (torch.argmax(probs, dim=1) == y).sum()
 
         loss /= len(loader)
@@ -186,7 +185,7 @@ class FashionCNN():
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr)
 
-    def train(self, data: Dataset, epochs: int, val_split: float = 0.0, batch_size: int = 64) -> dict:
+    def train(self, data: Dataset, epochs: int, val_split: float = 0.0, batch_size: int = 128) -> dict:
         """Train model.
         Args:
             data (Dataset): Data set with inputs and targets.
@@ -217,9 +216,9 @@ class FashionCNN():
 
                 # Forward pass
                 logits = self.model(X)
-                probs = nn.Softmax(dim=1)(logits)
-                loss = self.criterion(probs, y)
+                loss = self.criterion(logits, y)
                 train_loss += loss
+                probs = nn.Softmax(dim=1)(logits)
                 correct += (torch.argmax(probs, dim=1) == y).sum()
 
                 # Backpropagation
@@ -265,9 +264,8 @@ class FashionCNN():
                 y = y.to(self.device)
 
                 logits = self.model(X)
+                loss += self.criterion(logits, y)
                 probs = nn.Softmax(dim=1)(logits)
-
-                loss += self.criterion(probs, y)
                 correct += (torch.argmax(probs, dim=1) == y).sum()
 
         loss /= len(loader)
