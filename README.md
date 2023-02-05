@@ -21,4 +21,4 @@ Solving the famous number-placement puzzle from an image of a standard 9x9 Sudok
 |:-------------------------------------------------------------------:|:---------------------------------------------------------------------:|
 | <img src="sudoku_solver/img/demo_sudoku.jpg?raw=true" height="300"> | <img src="sudoku_solver/img/demo_solution.png?raw=true" height="300"> |
 
-Run `sudoku_ocr.py "img/demo_sudoku.jpg"`
+Run `sudoku_solver.py "img/demo_sudoku.jpg"`
