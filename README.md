@@ -15,7 +15,7 @@ Although the Fashion MNIST data set is too easy for state-of-the-art algorithms 
 
 ## Sudoku Solver
 
-Solving the famous number-placement puzzle from an image of a standard 9x9 Sudoku grid.
+Solving the famous number-placement puzzle from an image of a standard 9x9 Sudoku puzzle.
 
 | Sudoku                                                              | Solution                                                              |
 |:-------------------------------------------------------------------:|:---------------------------------------------------------------------:|
