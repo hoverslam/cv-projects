@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import cv2
 
@@ -141,19 +142,9 @@ class SudokuImage:
 
 
 if __name__ == "__main__":
-    sudoku = SudokuImage("img/sudoku1.jpg")
+    parser = argparse.ArgumentParser(description="Solves 9x9 Sudoku from image.")
+    parser.add_argument("file", type=str, help="path to image file")
+    args = vars(parser.parse_args())
+
+    sudoku = SudokuImage(args["file"])
     sudoku.solve()
-
-    # board = np.array([
-    #     [8, 0, 0, 0, 1, 0, 0, 0, 9],
-    #     [0, 5, 0, 8, 0, 7, 0, 1, 0],
-    #     [0, 0, 4, 0, 9, 0, 7, 0, 0],
-    #     [0, 6, 0, 7, 0, 1, 0, 2, 0],
-    #     [5, 0, 8, 0, 6, 0, 1, 0, 7],
-    #     [0, 1, 0, 5, 0, 2, 0, 9, 0],
-    #     [0, 0, 7, 0, 4, 0, 6, 0, 0],
-    #     [0, 8, 0, 3, 0, 9, 0, 4, 0],
-    #     [3, 0, 0, 0, 5, 0, 0, 0, 8]
-    # ], dtype=int)
-
-    # print(board == sudoku.get_digits())
