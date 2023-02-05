@@ -3,7 +3,7 @@
 A collection of some simple computer vision problems.
 
 - [ ] Fashion MNIST
-- [ ] Sudoku Solver
+- [x] Sudoku Solver
 - [ ] People Counter
 - [ ] Road Lane Detection
 - [ ] Object Tracking
