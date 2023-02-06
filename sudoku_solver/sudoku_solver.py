@@ -25,8 +25,7 @@ class SudokuImage:
         """Solve puzzle and display the original board with the missing digits.
         """
         # Find solution
-        board = self.get_board()
-        digits = self.get_digits()
+        digits, board = self.get_digits()
         solver = SudokuSolver(3, 3, board=digits.tolist())
         solution = np.array(solver.solve().board)
 
@@ -37,14 +36,14 @@ class SudokuImage:
 
         # Put solution in cells
         font = cv2.FONT_HERSHEY_SIMPLEX
-        textsize = cv2.getTextSize("0", font, 0.8, 2)[0]
+        textsize = cv2.getTextSize("0", font, 1, 2)[0]
         for i in range(9):
             for j in range(9):
                 cell = board[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
                 textX = (cell.shape[1] - textsize[0]) // 2 + w_linspace[j]
                 textY = (cell.shape[0] + textsize[1]) // 2 + h_linspace[i]
                 if digits[i, j] == 0:
-                    cv2.putText(board, str(solution[i, j]), (textX, textY), font, 0.8, (0, 0, 255), 2)
+                    cv2.putText(board, str(solution[i, j]), (textX, textY), font, 1, (0, 0, 255), 2)
 
         cv2.imshow("Solution", board)
         cv2.waitKey(0)
@@ -110,11 +109,12 @@ class SudokuImage:
 
         return board
 
-    def get_digits(self) -> np.ndarray:
+    def get_digits(self) -> tuple[np.ndarray, np.ndarray]:
         """Extract the digits from the puzzle board.
 
         Returns:
-            np.ndarray: The digits as an 9x9 array. Zero means empty cell.
+            tuple[np.ndarray, np.ndarray]: The digits as an 9x9 array (0 means empty cell) and the board 
+                where the digits were extracted from.
         """
         # Preprocessing
         board = cv2.resize(self.get_board(), (500, 500))
@@ -138,7 +138,7 @@ class SudokuImage:
                     if ocr.isnumeric():
                         digits[i, j] = int(ocr)
 
-        return digits
+        return digits, board
 
 
 if __name__ == "__main__":
