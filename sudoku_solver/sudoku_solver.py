@@ -29,25 +29,29 @@ class SudokuImage:
         solver = SudokuSolver(3, 3, board=digits.tolist())
         solution = np.array(solver.solve().board)
 
-        # Divide board in its 81 cells
-        height, width = board.shape[:2]
-        h_linspace = np.linspace(0, height, 10, dtype=int)
-        w_linspace = np.linspace(0, width, 10, dtype=int)
+        if (solution == None).all():
+            # If there is no solution the array only contains None
+            print("No solution found! If the puzzle is valid the OCR did not work.")
+        else:
+            # Divide board in its 81 cells
+            height, width = board.shape[:2]
+            h_linspace = np.linspace(0, height, 10, dtype=int)
+            w_linspace = np.linspace(0, width, 10, dtype=int)
 
-        # Put solution in cells
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        textsize = cv2.getTextSize("0", font, 1, 2)[0]
-        for i in range(9):
-            for j in range(9):
-                cell = board[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
-                textX = (cell.shape[1] - textsize[0]) // 2 + w_linspace[j]
-                textY = (cell.shape[0] + textsize[1]) // 2 + h_linspace[i]
-                if digits[i, j] == 0:
-                    cv2.putText(board, str(solution[i, j]), (textX, textY), font, 1, (0, 0, 255), 2)
+            # Put solution in cells
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            textsize = cv2.getTextSize("0", font, 1, 2)[0]
+            for i in range(9):
+                for j in range(9):
+                    cell = board[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
+                    textX = (cell.shape[1] - textsize[0]) // 2 + w_linspace[j]
+                    textY = (cell.shape[0] + textsize[1]) // 2 + h_linspace[i]
+                    if digits[i, j] == 0:
+                        cv2.putText(board, str(solution[i, j]), (textX, textY), font, 1, (0, 0, 255), 2)
 
-        cv2.imshow("Solution", board)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+            cv2.imshow("Solution", board)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
     def resize_height(self, img: np.ndarray, height: int) -> np.ndarray:
         """Resize image to a given height but keep aspect ratio.
@@ -121,6 +125,7 @@ class SudokuImage:
         gray = cv2.cvtColor(board, cv2.COLOR_BGR2GRAY)
         thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
         borderless = clear_border(thresh)
+        erosion = cv2.erode(borderless, (7, 7), iterations=2)
 
         # Divide board in its 81 cells
         height, width = board.shape[:2]
@@ -132,9 +137,10 @@ class SudokuImage:
         digits = np.zeros((9, 9), dtype=int)
         for i in range(9):
             for j in range(9):
-                cell = borderless[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
-                if cv2.countNonZero(cell) > 5:
-                    ocr = image_to_string(cell, config="--oem 3 --psm 10").strip()
+                cell = erosion[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
+                if cv2.countNonZero(cell) > 50:
+                    ocr = image_to_string(
+                        cell, config="--oem 3 --psm 10 tessedit_char_whitelist=0123456789").strip()
                     if ocr.isnumeric():
                         digits[i, j] = int(ocr)
 
