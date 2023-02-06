@@ -1,6 +1,6 @@
 # Computer Vision
 
-A collection of some simple computer vision problems.
+This repository is dedicated to get me started in computer vision and grow my skills and knowledge in the field - one small project at a time. The problems are designed to give me hands-on experience and a strong foundation for more complex tasks.
 
 - [ ] Fashion MNIST
 - [x] Sudoku Solver
