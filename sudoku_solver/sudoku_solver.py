@@ -5,7 +5,6 @@ import cv2
 from sudoku import Sudoku as SudokuSolver
 
 from pytesseract import image_to_string
-from imutils.perspective import four_point_transform
 from skimage.segmentation import clear_border
 
 
@@ -29,9 +28,17 @@ class SudokuImage:
         solver = SudokuSolver(3, 3, board=digits.tolist())
         solution = np.array(solver.solve().board)
 
+        # Select font
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        textsize = cv2.getTextSize("0", font, 1, 2)[0]
+
         if (solution == None).all():
             # If there is no solution the array only contains None
-            print("No solution found! If the puzzle is valid the OCR did not work.")
+            board = self.get_board()
+            cv2.putText(board, "No Solution found!", (100, 250), font, 1, (0, 0, 255), 2)
+            cv2.imshow("Solution", board)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
         else:
             # Divide board in its 81 cells
             height, width = board.shape[:2]
@@ -39,8 +46,6 @@ class SudokuImage:
             w_linspace = np.linspace(0, width, 10, dtype=int)
 
             # Put solution in cells
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            textsize = cv2.getTextSize("0", font, 1, 2)[0]
             for i in range(9):
                 for j in range(9):
                     cell = board[h_linspace[i]:h_linspace[i+1], w_linspace[j]:w_linspace[j+1]]
@@ -105,11 +110,13 @@ class SudokuImage:
         # Find the four corners of the puzzle
         border = self.get_border()
         peri = cv2.arcLength(border, True)
-        corners = cv2.approxPolyDP(border, 0.04 * peri, True)
+        corners = cv2.approxPolyDP(border, 0.04 * peri, True).astype("float32")
         corners = np.squeeze(corners, axis=1)
 
         # Deskew to get a top-down view of the board
-        board = four_point_transform(self.img, corners)
+        pts = np.float32([[500, 0], [500, 500], [0, 500], [0, 0]])
+        M = cv2.getPerspectiveTransform(corners, pts)
+        board = cv2.warpPerspective(self.img, M, (500, 500))
 
         return board
 
